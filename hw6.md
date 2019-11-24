@@ -279,3 +279,93 @@ pivot_longer(
 ```
 
 ![](hw6_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+# Problem 2
+
+``` r
+weather_df =
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728"),
+    var = c("PRCP", "TMIN", "TMAX"),
+    date_min = "2017-01-01",
+    date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(id, USW00094728 = "CentralPark_NY"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  select(name, id, everything())
+```
+
+    ## Registered S3 method overwritten by 'crul':
+    ##   method                 from
+    ##   as.character.form_file httr
+
+    ## Registered S3 method overwritten by 'hoardr':
+    ##   method           from
+    ##   print.cache_info httr
+
+    ## file path:          C:\Users\YuaoY\AppData\Local\rnoaa\rnoaa\Cache/ghcnd/USW00094728.dly
+
+    ## file last updated:  2019-09-26 10:27:14
+
+    ## file min/max dates: 1869-01-01 / 2019-09-30
+
+``` r
+bootstrap_weather = weather_df %>% 
+  modelr::bootstrap(n = 5000) %>% 
+  mutate(
+    models = map(strap, ~lm( tmax ~ tmin , data = .x) ),
+    results = map(models, broom::tidy),
+    glance = map(models, broom::glance)) %>% 
+  select(-strap, -models) %>% 
+  unnest(results, glance)
+```
+
+    ## Warning: unnest() has a new interface. See ?unnest for details.
+    ## Try `df %>% unnest(c(results, glance))`, with `mutate()` if needed
+
+``` r
+weather_rsquare = bootstrap_weather %>%
+  select(.id, r.squared) %>%
+  unique()
+
+weather_log = bootstrap_weather%>% 
+  group_by(.id) %>% 
+  mutate(log = log(estimate)) %>%  # becase log(a*b) = log(a) +log(b)
+  summarise(log_sum = sum(log))
+```
+
+``` r
+weather_rsquare %>%
+  ggplot(aes(x = r.squared)) +
+  geom_density() +
+  labs(title = "the distribution of R Squared", x = "R-Squared")
+```
+
+![](hw6_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+weather_log %>%
+  ggplot(aes(x = log_sum))+geom_density() +
+  labs(x = "log(beta0*beta1)", title = "the distribution of log(beta0*beta1)")
+```
+
+![](hw6_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
+
+``` r
+quantile(pull(weather_rsquare, r.squared), c(0.025, 0.975))
+```
+
+    ##      2.5%     97.5% 
+    ## 0.8932914 0.9274370
+
+``` r
+quantile(pull(weather_log, log_sum), c(0.025, 0.975))
+```
+
+    ##     2.5%    97.5% 
+    ## 1.964648 2.059194
+
+From the calculation, we can find that provide 95% confidence interveal
+the range is (0.894,0.927) for R Squared given 2.5% and 97.5% quantiles,
+and it is (1.97, 2.06) for log(beta0\*beta1).
