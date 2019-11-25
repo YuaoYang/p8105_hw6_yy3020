@@ -44,7 +44,7 @@ birthweight %>%
   geom_smooth(aes(y = resid), color = "red",method = "lm") +
   labs(x = "prediction", y = "residual", title = "model residuals against fitted values")
 ```
-
+From the plot, we can find the residual is approximate to y = 0 with constant variance. 
 ```{r}
 reg_1 = lm(bwt~blength+gaweeks, data = birthweight)
 reg_2 = lm(bwt~bhead+blength+babysex+bhead*blength + bhead*babysex + blength*babysex + bhead*blength*babysex, data = birthweight)
@@ -76,6 +76,7 @@ pivot_longer(
   mutate(model = fct_inorder(model)) %>% 
   ggplot(aes(x = model, y = rmse)) + geom_violin()
 ```
+From the violin plot, we can the reg_optimal model performs best here and has the lowest rmse here.
 
 # Problem 2
 
@@ -125,7 +126,7 @@ weather_log %>%
   ggplot(aes(x = log_sum))+geom_density() +
   labs(x = "log(beta0*beta1)", title = "the distribution of log(beta0*beta1)")
 ```
-
+From the distribution plot, we can easily find that the distribution of R Squared is slight left skewness.  And the distribution of log(beta0*beta1) is more normal than the former.
 ```{r}
 quantile(pull(weather_rsquare, r.squared), c(0.025, 0.975))
 quantile(pull(weather_log, log_sum), c(0.025, 0.975))

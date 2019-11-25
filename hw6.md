@@ -245,7 +245,8 @@ birthweight %>%
   labs(x = "prediction", y = "residual", title = "model residuals against fitted values")
 ```
 
-![](hw6_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](hw6_files/figure-gfm/unnamed-chunk-4-1.png)<!-- --> From the plot,
+we can find the residual is approximate to y = 0 with constant variance.
 
 ``` r
 reg_1 = lm(bwt~blength+gaweeks, data = birthweight)
@@ -278,7 +279,9 @@ pivot_longer(
   ggplot(aes(x = model, y = rmse)) + geom_violin()
 ```
 
-![](hw6_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](hw6_files/figure-gfm/unnamed-chunk-7-1.png)<!-- --> From the violin
+plot, we can the reg\_optimal model performs best here and has the
+lowest rmse here.
 
 # Problem 2
 
@@ -350,21 +353,24 @@ weather_log %>%
   labs(x = "log(beta0*beta1)", title = "the distribution of log(beta0*beta1)")
 ```
 
-![](hw6_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
+![](hw6_files/figure-gfm/unnamed-chunk-10-2.png)<!-- --> From the
+distribution plot, we can easily find that the distribution of R Squared
+is slight left skewness. And the distribution of log(beta0\*beta1) is
+more normal than the former.
 
 ``` r
 quantile(pull(weather_rsquare, r.squared), c(0.025, 0.975))
 ```
 
     ##      2.5%     97.5% 
-    ## 0.8932914 0.9274370
+    ## 0.8935689 0.9272492
 
 ``` r
 quantile(pull(weather_log, log_sum), c(0.025, 0.975))
 ```
 
     ##     2.5%    97.5% 
-    ## 1.964648 2.059194
+    ## 1.964665 2.059088
 
 From the calculation, we can find that provide 95% confidence interveal
 the range is (0.894,0.927) for R Squared given 2.5% and 97.5% quantiles,
